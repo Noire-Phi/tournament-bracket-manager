@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "javac -d out (Get-ChildItem -Recurse -Path src -Filter *.java | ForEach-Object FullName)",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": "$javac"
+    },
+    {
+      "label": "Run checks",
+      "type": "shell",
+      "command": "java -cp out test.TournamentTest",
+      "dependsOn": "Build",
+      "group": "test"
+    },
+    {
+      "label": "Build JAR",
+      "type": "shell",
+      "command": "jar --create --file TournamentBracketManager.jar --main-class ui.Main -C out .",
+      "dependsOn": "Build"
+    }
+  ]
+}

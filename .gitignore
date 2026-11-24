@@ -1,0 +1,13 @@
+# Build output
+out/
+*.class
+
+# Local tool settings
+.claude/
+
+# Stray copy made when the session folder moved
+/TournamentBracketManager/
+
+# OS files
+.DS_Store
+Thumbs.db
