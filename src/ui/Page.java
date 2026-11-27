@@ -9,11 +9,11 @@ public abstract class Page extends JPanel {
 
     /** What a page can ask of the window around it. */
     public interface Host {
-        /** The tournament changed in a way every page must show (for example the sport mode). */
-        void changed();
-
         /** Shows a toast and writes the message to the status label. */
         void notify(String message, boolean error);
+
+        /** Asks to close the application. The window shows its own confirmation. */
+        void exit();
     }
 
     protected final Tournament tournament;
@@ -30,4 +30,10 @@ public abstract class Page extends JPanel {
     public abstract String title();
 
     public abstract void refresh();
+
+    /** Called by the window whenever its width changes, for every page, shown or not. */
+    public void resized(int frameWidth) {}
+
+    /** Called when the user opens this page, not on every refresh. Entrance motion goes here. */
+    public void opened() {}
 }

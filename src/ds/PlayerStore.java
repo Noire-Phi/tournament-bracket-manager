@@ -25,13 +25,6 @@ public class PlayerStore {
         return Searches.linearByName(list, name);
     }
 
-    public Player findById(int id) {
-        for (Player p : list) {
-            if (p.id == id) return p;
-        }
-        return null;
-    }
-
     public List<Player> list() {
         return Collections.unmodifiableList(list);
     }

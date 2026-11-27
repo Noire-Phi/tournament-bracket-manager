@@ -14,3 +14,9 @@ Thumbs.db
 
 # Private notes, never published
 PROMPTS.md
+
+# Design reference images
+*@1x.png
+
+# Built JAR: published as a release asset instead
+*.jar

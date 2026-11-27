@@ -40,7 +40,7 @@ public class Tournament {
     public Player addPlayer(String playerName) {
         requireUnlocked();
         String clean = cleanName(playerName);
-        if (players.findByName(clean) != null) throw new IllegalArgumentException("A player named " + clean + " already exists");
+        if (players.findByName(clean) != null) throw new IllegalArgumentException("A " + who() + " named " + clean + " already exists");
         return players.add(clean);
     }
 
@@ -48,7 +48,7 @@ public class Tournament {
         requireUnlocked();
         String clean = cleanName(playerName);
         Player other = players.findByName(clean);
-        if (other != null && other != p) throw new IllegalArgumentException("A player named " + clean + " already exists");
+        if (other != null && other != p) throw new IllegalArgumentException("A " + who() + " named " + clean + " already exists");
         p.name = clean;
     }
 
@@ -68,7 +68,7 @@ public class Tournament {
         if (generated) throw new IllegalStateException("The bracket already exists");
         int n = players.size();
         if (!Rounds.isBracketSize(n)) {
-            throw new IllegalArgumentException("A bracket needs 4, 8 or 16 players. You have " + n + ".");
+            throw new IllegalArgumentException("A bracket needs 4, 8 or 16 " + who() + "s. You have " + n + ".");
         }
         List<Player> seeds = Shuffle.shuffled(new ArrayList<>(players.list()), rnd);
         totalRounds = Rounds.rounds(n);
@@ -159,6 +159,14 @@ public class Tournament {
         return m;
     }
 
+    /** The first match marked in progress, or null. */
+    public Match inProgress() {
+        for (Match m : matches.list()) {
+            if (m.status == Match.Status.IN_PROGRESS) return m;
+        }
+        return null;
+    }
+
     /** Takes the first ready match and marks it in progress. Returns null when none is ready. */
     public Match startNext() {
         Match m = ready.poll();
@@ -170,7 +178,7 @@ public class Tournament {
 
     public Match addExtraMatch(int round, Player a, Player b) {
         if (round < 1) throw new IllegalArgumentException("Round must be 1 or more");
-        if (a == null || b == null || a == b) throw new IllegalArgumentException("Pick two different players");
+        if (a == null || b == null || a == b) throw new IllegalArgumentException("Pick two different " + who() + "s");
         Match m = new Match(nextMatchId++, round);
         m.a = a;
         m.b = b;
@@ -205,6 +213,36 @@ public class Tournament {
         return best;
     }
 
+    /** Number of bracket rounds, or 0 before the bracket exists. */
+    public int totalRounds() {
+        return generated ? totalRounds : 0;
+    }
+
+    /**
+     * The round's name: "Final", "Semifinals", "Quarterfinals", or "Round of 16" and so on.
+     * Singular ("Semifinal") reads better beside one match. Extra matches are named by number.
+     */
+    public String roundName(Match m, boolean plural) {
+        if (!m.bracket || !generated) return "Round " + m.round + (m.bracket ? "" : " (extra)");
+        return roundName(m.round, plural);
+    }
+
+    public String roundName(int round, boolean plural) {
+        int fromEnd = totalRounds - round;
+        if (fromEnd == 0) return "Final";
+        if (fromEnd == 1) return plural ? "Semifinals" : "Semifinal";
+        if (fromEnd == 2) return plural ? "Quarterfinals" : "Quarterfinal";
+        return "Round of " + (2 << fromEnd);
+    }
+
+    /** True once the player has lost a bracket match. Extra matches never knock anyone out. */
+    public boolean isOut(Player p) {
+        for (Match m : matches.list()) {
+            if (m.bracket && m.status == Match.Status.PLAYED && m.winner != p && (m.a == p || m.b == p)) return true;
+        }
+        return false;
+    }
+
     public Match nextMatch() {
         return ready.peek();
     }
@@ -224,11 +262,6 @@ public class Tournament {
     public Match findMatch(String text) {
         int id = parseId(text, 'M');
         return id < 0 ? null : matches.findById(id);
-    }
-
-    public Player findPlayerById(String text) {
-        int id = parseId(text, 'P');
-        return id < 0 ? null : players.findById(id);
     }
 
     // ----- IDs: displayed as P001 and M013; input is case-insensitive -----
@@ -258,7 +291,12 @@ public class Tournament {
     // ----- helpers -----
 
     private void requireUnlocked() {
-        if (generated) throw new IllegalStateException("Players are locked once the bracket exists");
+        if (generated) throw new IllegalStateException(sport.entity + "s are locked once the bracket exists");
+    }
+
+    /** "player" or "team", so messages follow the sport mode. */
+    private String who() {
+        return sport.entity.toLowerCase();
     }
 
     private static String cleanName(String s) {

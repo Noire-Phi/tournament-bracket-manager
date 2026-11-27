@@ -73,6 +73,10 @@ public class TournamentTest {
         List<Player> players = Arrays.asList(venti, klee);
         check("linear search finds Klee ignoring case", Searches.linearByName(players, "klee") == klee);
         check("linear search misses unknown name", Searches.linearByName(players, "Nobody") == null);
+        check("contains search keeps matches in order", Searches.linearContains(players, "E").size() == 2
+                && Searches.linearContains(players, "  ent ").size() == 1
+                && Searches.linearContains(players, "").size() == 2
+                && Searches.linearContains(players, "zz").isEmpty());
 
         List<Match> byId = new ArrayList<>();
         for (int id : new int[] {1, 3, 5, 9}) byId.add(new Match(id, 1));
@@ -92,6 +96,10 @@ public class TournamentTest {
         List<String> names = new ArrayList<>();
         for (Player p : list) names.add(p.name);
         check("points sort with name ties", names.equals(Arrays.asList("Bo", "Eve", "Ann", "Cy", "Dee")));
+        // Bo 5, Eve 5, Ann 3, Cy 3, Dee 0: shared ranks 1, 1, 3, 3, 5
+        check("tied players share a rank", Arrays.equals(algo.Ranks.of(list), new int[] {1, 1, 3, 3, 5}));
+        check("rank chip groups", algo.Ranks.group(list, 1) == algo.Ranks.LEADERS
+                && algo.Ranks.group(list, 2) == algo.Ranks.NEXT && algo.Ranks.group(list, 4) == algo.Ranks.REST);
 
         Match m1 = new Match(1, 2), m2 = new Match(2, 1), m3 = new Match(3, 3), m4 = new Match(4, 1);
         List<Match> sorted = Sorts.mergeSort(new ArrayList<>(Arrays.asList(m1, m2, m3, m4)),
@@ -136,6 +144,11 @@ public class TournamentTest {
         for (Player p : t.players().list()) total += p.points;
         check("total points equal matches played", total == 15);
         check("current round is last round after final", t.currentRound() == 4);
+        check("round names for 16 players", t.roundName(1, true).equals("Round of 16") && t.roundName(2, true).equals("Quarterfinals")
+                && t.roundName(3, false).equals("Semifinal") && t.roundName(4, true).equals("Final"));
+        int out = 0;
+        for (Player p : t.players().list()) if (t.isOut(p)) out++;
+        check("15 players are out and the champion is still in", out == 15 && !t.isOut(t.champion()));
     }
 
     private static void testStartNextAndUndo() {

@@ -16,16 +16,15 @@ import model.Match;
  * so state is never carried by color alone. Register it for Match.Status.class.
  */
 public class StatusPill extends JLabel implements TableCellRenderer {
-    private static final int ARC = 6;
+    private static final int PAD_Y_PILL = 3;
     private static final int PAD_X = 10;
-    private static final int PAD_Y = 1;
 
     private Match.Status status;
     private boolean selected, first;
 
     public StatusPill() {
         setOpaque(false);
-        setFont(Theme.display(15));
+        setFont(Theme.body(Theme.SIZE_S).deriveFont(java.awt.Font.BOLD));
     }
 
     public static String label(Match.Status s) {
@@ -39,15 +38,20 @@ public class StatusPill extends JLabel implements TableCellRenderer {
 
     private static Color fill(Match.Status s) {
         return switch (s) {
-            case PLAYED -> Theme.WIN;
-            case READY -> Theme.GOLD;
-            case IN_PROGRESS -> Theme.PRIMARY;
+            case PLAYED -> Theme.PLAYED_TINT;
+            case READY -> Theme.READY_FILL;
+            case IN_PROGRESS -> Theme.LIVE_TINT;
             case WAITING -> Theme.RAISE;
         };
     }
 
     private static Color text(Match.Status s) {
-        return s == Match.Status.WAITING ? Theme.INK : Theme.ON_PRIMARY;
+        return switch (s) {
+            case PLAYED -> Theme.WIN;
+            case READY -> Theme.ON_PRIMARY;
+            case IN_PROGRESS -> Theme.LIVE;
+            case WAITING -> Theme.INK_MUTED;
+        };
     }
 
     @Override
@@ -69,15 +73,15 @@ public class StatusPill extends JLabel implements TableCellRenderer {
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2.setFont(getFont());
         FontMetrics fm = g2.getFontMetrics();
-        String word = getText().toUpperCase();
+        String word = getText();
         int w = fm.stringWidth(word) + 2 * PAD_X;
-        int h = fm.getHeight() + 2 * PAD_Y;
+        int h = fm.getHeight() + 2 * PAD_Y_PILL;
         int x = Theme.SPACE_M;
         int y = (getHeight() - h) / 2;
         g2.setColor(fill(status));
-        g2.fillRoundRect(x, y, w, h, ARC, ARC);
+        g2.fillRoundRect(x, y, w, h, h, h);
         g2.setColor(text(status));
-        g2.drawString(word, x + PAD_X, y + PAD_Y + fm.getAscent());
+        g2.drawString(word, x + PAD_X, y + PAD_Y_PILL + fm.getAscent());
         g2.dispose();
     }
 }

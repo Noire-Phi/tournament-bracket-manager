@@ -16,12 +16,12 @@ import javax.swing.Timer;
 
 /**
  * Notification label on the frame's glass pane, bottom center, shown for 4 seconds.
- * Success has a WIN border, error a PRIMARY border. Use Toast.success(root, msg) or Toast.error(root, msg).
+ * Rounded PANEL_DEEP box: amber outline for success, DANGER_TEXT outline for errors. Use Toast.success(root, msg) or Toast.error(root, msg).
  */
 public final class Toast extends JLabel {
     private static final String KEY = "tbm.toast";
     private static final int SHOW_MS = 4000;
-    private static final int SHADOW = 5;
+    private static final int RADIUS = 16;
 
     /** Glass pane that lets every mouse event through to the page below. */
     private static final class Glass extends JPanel {
@@ -47,11 +47,11 @@ public final class Toast extends JLabel {
     private Toast(JRootPane root) {
         this.root = root;
         hideTimer.setRepeats(false);
-        setFont(Theme.body(15));
+        setFont(Theme.body(Theme.SIZE_M));
         setForeground(Theme.INK);
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(Theme.SPACE_M, Theme.SPACE_L,
-                Theme.SPACE_M + SHADOW, Theme.SPACE_L + SHADOW));
+                Theme.SPACE_M, Theme.SPACE_L));
         glass.add(this);
         glass.addComponentListener(new ComponentAdapter() {
             @Override
@@ -80,7 +80,7 @@ public final class Toast extends JLabel {
 
     private void display(String message, boolean error) {
         generation++;
-        accent = error ? Theme.PRIMARY : Theme.WIN;
+        accent = error ? Theme.DANGER_TEXT : Theme.WIN;
         setText(message);
         getAccessibleContext().setAccessibleName((error ? "Error: " : "Success: ") + message);
         setSize(getPreferredSize());
@@ -115,15 +115,14 @@ public final class Toast extends JLabel {
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setComposite(AlphaComposite.SrcOver.derive(Math.max(0f, Math.min(1f, alpha))));
-        int w = getWidth() - SHADOW, h = getHeight() - SHADOW;
-        g2.setColor(accent);
-        g2.fillRect(SHADOW, SHADOW, w, h);
+        int w = getWidth(), h = getHeight();
         g2.setColor(Theme.PANEL_DEEP);
-        g2.fillRect(0, 0, w, h);
+        g2.fillRoundRect(0, 0, w, h, 2 * RADIUS, 2 * RADIUS);
         g2.setColor(accent);
-        g2.setStroke(new BasicStroke(Theme.BORDER));
-        g2.drawRect(1, 1, w - 2, h - 2);
+        g2.setStroke(new BasicStroke(1));
+        g2.drawRoundRect(0, 0, w - 1, h - 1, 2 * RADIUS, 2 * RADIUS);
         super.paintComponent(g2);
         g2.dispose();
     }

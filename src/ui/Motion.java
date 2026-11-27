@@ -18,6 +18,17 @@ public final class Motion {
         return 1 - u * u * u;
     }
 
+    /** Runs r after delayMs. With reduced motion, or no delay, it runs at once. */
+    public static void after(int delayMs, Runnable r) {
+        if (reduced() || delayMs <= 0) {
+            r.run();
+            return;
+        }
+        Timer t = new Timer(delayMs, e -> r.run());
+        t.setRepeats(false);
+        t.start();
+    }
+
     /**
      * Calls step with eased progress 0..1 every ~16ms for durationMs, then runs done.
      * With reduced motion it jumps straight to 1.

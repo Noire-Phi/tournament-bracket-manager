@@ -1,32 +1,29 @@
 package ui;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
 import java.awt.RenderingHints;
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-/** UI_GUIDE card: PANEL fill, 2px LINE border, 18px padding, PRIMARY slash before the title. */
+/** UI_GUIDE tile: rounded (24) PANEL fill, 1px LINE outline, 24px padding, sentence-case title. */
 public class Card extends JPanel {
+    private static final int RADIUS = 24;
+
     private final JLabel title = new JLabel();
     private final JPanel body = new JPanel(new BorderLayout());
 
     public Card(String titleText) {
         super(new BorderLayout(0, Theme.SPACE_M));
+        setOpaque(false);
         setBackground(Theme.PANEL);
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(Theme.BORDER, Theme.BORDER, Theme.BORDER, Theme.BORDER, Theme.LINE),
-                BorderFactory.createEmptyBorder(Theme.CARD_PAD, Theme.CARD_PAD, Theme.CARD_PAD, Theme.CARD_PAD)));
+        setBorder(BorderFactory.createEmptyBorder(Theme.CARD_PAD, Theme.CARD_PAD, Theme.CARD_PAD, Theme.CARD_PAD));
 
-        title.setFont(Theme.display(20));
+        title.setFont(Theme.display(Theme.SIZE_L));
         title.setForeground(Theme.INK);
-        title.setIcon(new Slash());
-        title.setIconTextGap(Theme.SPACE_M - Theme.SPACE_XS);
         body.setOpaque(false);
         setTitle(titleText);
 
@@ -35,8 +32,14 @@ public class Card extends JPanel {
     }
 
     public void setTitle(String text) {
-        title.setText(text.toUpperCase());
+        title.setText(text);
+        title.setVisible(!text.isEmpty());   // a tile with no title just holds its content
         getAccessibleContext().setAccessibleName(text);
+    }
+
+    /** For the amber hero tile: the title switches to ON_PRIMARY. */
+    public void setTitleColor(java.awt.Color c) {
+        title.setForeground(c);
     }
 
     /** Put the card's content here. */
@@ -44,29 +47,17 @@ public class Card extends JPanel {
         return body;
     }
 
-    /** 10 x 20 slanted bar (skewX -20 degrees). */
-    private static final class Slash implements Icon {
-        private static final int W = 10, H = 20, SKEW = 7;
-
-        @Override
-        public void paintIcon(Component c, Graphics g, int x, int y) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(Theme.PRIMARY);
-            g2.fill(new Polygon(
-                    new int[] {x + SKEW, x + SKEW + W, x + W, x},
-                    new int[] {y, y, y + H, y + H}, 4));
-            g2.dispose();
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(getBackground());
+        g2.fillRoundRect(0, 0, getWidth(), getHeight(), 2 * RADIUS, 2 * RADIUS);
+        if (Theme.PANEL.equals(getBackground())) {   // amber tiles have no outline
+            g2.setColor(Theme.LINE);
+            g2.setStroke(new BasicStroke(Theme.BORDER));
+            g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 2 * RADIUS, 2 * RADIUS);
         }
-
-        @Override
-        public int getIconWidth() {
-            return W + SKEW;
-        }
-
-        @Override
-        public int getIconHeight() {
-            return H;
-        }
+        g2.dispose();
     }
 }
