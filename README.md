@@ -88,7 +88,7 @@ src/
   algo/    searches, sorts, rounds, shuffle, ranks
   ui/      Swing screens and shared widgets, all styled from Theme
   test/    TournamentTest
-docs/      project documentation (PDF, DOCX), slides, screenshots
+docs/      screenshots used in this README
 UI_GUIDE.md   the design rules and a changelog
 ```
 
