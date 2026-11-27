@@ -89,14 +89,13 @@ src/
   ui/      Swing screens and shared widgets, all styled from Theme
   test/    TournamentTest
 docs/      screenshots used in this README
-UI_GUIDE.md   the design rules and a changelog
 ```
 
 The screens hold no tournament rules. They call `Tournament` and redraw from it.
 
 ## Design
 
-Dark grey tiles with one amber accent, Bricolage Grotesque for titles and DM Sans for text. Every colour, font size and animation length comes from `ui/Theme.java`. Text meets WCAG AA contrast, every control can be reached with the keyboard, and animations can be turned off with `-Dtbm.reduceMotion=true`. The full rules are in [UI_GUIDE.md](UI_GUIDE.md).
+Dark grey tiles with one amber accent, Bricolage Grotesque for titles and DM Sans for text. Every colour, font size and animation length comes from `ui/Theme.java`. Text meets WCAG AA contrast, every control can be reached with the keyboard, and animations can be turned off with `-Dtbm.reduceMotion=true`.
 
 | | |
 |---|---|

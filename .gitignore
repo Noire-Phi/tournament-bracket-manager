@@ -24,3 +24,7 @@ PROMPTS.md
 # Project documentation and slides: kept locally, not published
 docs/Project-Documentation.*
 docs/Presentation.pptx
+
+# Design guide and reference page: kept locally, not published
+UI_GUIDE.md
+preview/
